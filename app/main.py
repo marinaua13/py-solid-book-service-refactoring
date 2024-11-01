@@ -1,17 +1,17 @@
 import json
-import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ElementTree
 from abc import ABC, abstractmethod
 
 
 class Book:
-    def __init__(self, title: str, content: str):
+    def __init__(self, title: str, content: str) -> None:
         self.title = title
         self.content = content
 
 
 class DisplayStrategy(ABC):
     @abstractmethod
-    def display(self, content: str) ->None:
+    def display(self, content: str) -> None:
         pass
 
 
@@ -20,7 +20,7 @@ class ConsoleDisplay(DisplayStrategy):
         print(content)
 
 
-class ReverseDisplay (DisplayStrategy):
+class ReverseDisplay(DisplayStrategy):
     def display(self, content: str) -> None:
         print(content[::-1])
 
@@ -56,24 +56,36 @@ class JsonSerializer(Serializer):
 
 class XmlSerializer(Serializer):
     def serialize(self, book: Book) -> str:
-        root = ET.Element("book")
-        title = ET.SubElement(root, "title")
+        root = ElementTree.Element("book")
+        title = ElementTree.SubElement(root, "title")
         title.text = book.title
-        content = ET.SubElement(root, "content")
+        content = ElementTree.SubElement(root, "content")
         content.text = book.content
-        return ET.tostring(root, encoding="unicode")
+        return ElementTree.tostring(root, encoding="unicode")
 
 
 def main(book: Book, commands: list[tuple[str, str]]) -> None | str:
     for cmd, method_type in commands:
         if cmd == "display":
-            display_strategy = ConsoleDisplay() if method_type == "console" else ReverseDisplay()
+            display_strategy = (
+                ConsoleDisplay()
+                if method_type == "console"
+                else ReverseDisplay()
+            )
             display_strategy.display(book.content)
         elif cmd == "print":
-            print_strategy = ConsolePrint() if method_type == "console" else ReversePrint()
+            print_strategy = (
+                ConsolePrint()
+                if method_type == "console"
+                else ReversePrint()
+            )
             print_strategy.print(book.title, book.content)
         elif cmd == "serialize":
-            serializer = JsonSerializer() if method_type == "json" else XmlSerializer()
+            serializer = (
+                JsonSerializer()
+                if method_type == "json"
+                else XmlSerializer()
+            )
             return serializer.serialize(book)
 
 
